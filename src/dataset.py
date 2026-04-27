@@ -54,7 +54,12 @@ class BirdAudioDataset(Dataset):
         noisy_mag = np.abs(noisy_stft)
         clean_mag = np.abs(clean_stft)
         
-        # Ideal Binary Mask (IBM): 1 if clean > 0.5 * noisy
+        # Ensure both spectrograms have the same number of frames
+        min_frames = min(noisy_mag.shape[1], clean_mag.shape[1])
+        noisy_mag = noisy_mag[:, :min_frames]
+        clean_mag = clean_mag[:, :min_frames]
+        
+        # Ideal Binary Mask (IBM): Nilai 1 jika magnitudo suara dominan
         mask = (clean_mag > 0.5 * noisy_mag).astype(np.float32)
         
         # Log-scale Normalize Input
