@@ -22,8 +22,9 @@ It converts audio into spectrograms, passes them through a ViT Encoder-Decoder a
 
 2. Prepare your dataset:
    Place your audio files in the `data/` folder (or specify custom paths in `config.py`):
-   - `data/train/noisy/*.wav`
-   - `data/train/clean/*.wav`
+   - `data/train/noisy/*.wav` and `data/train/clean/*.wav`
+   - `data/valid/noisy/*.wav` and `data/valid/clean/*.wav`
+   - `data/test/noisy/*.wav` and `data/test/clean/*.wav`
 
 ## Training
 

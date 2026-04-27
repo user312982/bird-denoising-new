@@ -25,6 +25,10 @@ class Config:
     DATASET_PATH = os.path.join(BASE_DIR, 'data')
     NOISY_TRAIN_DIR = os.path.join(DATASET_PATH, 'train', 'noisy')
     CLEAN_TRAIN_DIR = os.path.join(DATASET_PATH, 'train', 'clean')
+    NOISY_VALID_DIR = os.path.join(DATASET_PATH, 'valid', 'noisy')
+    CLEAN_VALID_DIR = os.path.join(DATASET_PATH, 'valid', 'clean')
+    NOISY_TEST_DIR = os.path.join(DATASET_PATH, 'test', 'noisy')
+    CLEAN_TEST_DIR = os.path.join(DATASET_PATH, 'test', 'clean')
     CHECKPOINT_DIR = os.path.join(BASE_DIR, 'checkpoints', 'vitvs_denoising')
 
 # Ensure checkpoint dir exists

@@ -23,10 +23,15 @@ def main(args):
     
     if args.noisy_dir: Config.NOISY_TRAIN_DIR = args.noisy_dir
     if args.clean_dir: Config.CLEAN_TRAIN_DIR = args.clean_dir
+    if args.val_noisy_dir: Config.NOISY_VALID_DIR = args.val_noisy_dir
+    if args.val_clean_dir: Config.CLEAN_VALID_DIR = args.val_clean_dir
     if args.checkpoint_dir: Config.CHECKPOINT_DIR = args.checkpoint_dir
 
-    print(f"Preparing dataset from: {Config.NOISY_TRAIN_DIR} and {Config.CLEAN_TRAIN_DIR}")
+    print(f"Preparing train dataset from: {Config.NOISY_TRAIN_DIR} and {Config.CLEAN_TRAIN_DIR}")
     train_loader = get_dataloader(Config.NOISY_TRAIN_DIR, Config.CLEAN_TRAIN_DIR, Config)
+    
+    print(f"Preparing validation dataset from: {Config.NOISY_VALID_DIR} and {Config.CLEAN_VALID_DIR}")
+    val_loader = get_dataloader(Config.NOISY_VALID_DIR, Config.CLEAN_VALID_DIR, Config, shuffle=False)
     
     if len(train_loader.dataset) == 0:
         print("Error: Dataset is empty. Please check your data paths.")
@@ -36,10 +41,10 @@ def main(args):
 
     checkpoint_callback = ModelCheckpoint(
         dirpath=Config.CHECKPOINT_DIR,
-        filename='vitvs-epoch{epoch:02d}',
+        filename='vitvs-epoch{epoch:02d}-val_loss{val_loss:.2f}',
         auto_insert_metric_name=False,
         save_top_k=2,
-        monitor='train_loss',
+        monitor='val_loss',
         save_last=True
     )
 
@@ -54,10 +59,10 @@ def main(args):
 
     if latest_ckpt:
         print(f"\n[INFO] Resuming training from Checkpoint: {latest_ckpt}")
-        trainer.fit(model, train_dataloaders=train_loader, ckpt_path=latest_ckpt)
+        trainer.fit(model, train_dataloaders=train_loader, val_dataloaders=val_loader, ckpt_path=latest_ckpt)
     else:
         print("\n[INFO] Starting training from scratch (Epoch 0)")
-        trainer.fit(model, train_dataloaders=train_loader)
+        trainer.fit(model, train_dataloaders=train_loader, val_dataloaders=val_loader)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Train ViTVS Audio Denoising Model')
@@ -66,6 +71,8 @@ if __name__ == '__main__':
     parser.add_argument('--lr', type=float, default=Config.LR, help='Learning rate')
     parser.add_argument('--noisy_dir', type=str, default='', help='Path to noisy train data')
     parser.add_argument('--clean_dir', type=str, default='', help='Path to clean train data')
+    parser.add_argument('--val_noisy_dir', type=str, default='', help='Path to noisy validation data')
+    parser.add_argument('--val_clean_dir', type=str, default='', help='Path to clean validation data')
     parser.add_argument('--checkpoint_dir', type=str, default='', help='Directory to save checkpoints')
     
     args = parser.parse_args()

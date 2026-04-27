@@ -1,6 +1,7 @@
 import torch
 import torch.nn as nn
 from einops import rearrange
+from einops.layers.torch import Rearrange
 
 class FeedForward(nn.Module):
     def __init__(self, dim, hidden_dim, dropout=0.):
@@ -64,7 +65,7 @@ class ViTVS_Encoder(nn.Module):
         patch_dim = channels * patch_size ** 2
 
         self.to_patch_embedding = nn.Sequential(
-            rearrange('b c (h p1) (w p2) -> b (h w) (p1 p2 c)', p1=patch_size, p2=patch_size),
+            Rearrange('b c (h p1) (w p2) -> b (h w) (p1 p2 c)', p1=patch_size, p2=patch_size),
             nn.Linear(patch_dim, dim),
         )
         self.pos_embedding = nn.Parameter(torch.randn(1, num_patches, dim))
