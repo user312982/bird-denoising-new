@@ -39,20 +39,30 @@ def main(args):
 
     model = ViTVSLightningModule(Config)
 
-    checkpoint_callback = ModelCheckpoint(
+    val_checkpoint = ModelCheckpoint(
         dirpath=Config.CHECKPOINT_DIR,
-        filename='vitvs-epoch{epoch:02d}-val_loss{val_loss:.2f}',
+        filename='vitvs-best-val-epoch{epoch:02d}-val_loss{val_loss:.3f}',
         auto_insert_metric_name=False,
-        save_top_k=2,
+        save_top_k=1,
         monitor='val_loss',
+        mode='min',
         save_last=True
+    )
+
+    train_checkpoint = ModelCheckpoint(
+        dirpath=Config.CHECKPOINT_DIR,
+        filename='vitvs-best-train-epoch{epoch:02d}-train_loss{train_loss:.3f}',
+        auto_insert_metric_name=False,
+        save_top_k=1,
+        monitor='train_loss',
+        mode='min',
     )
 
     trainer = pl.Trainer(
         max_epochs=Config.EPOCHS,
         accelerator='gpu' if torch.cuda.is_available() else 'cpu',
         devices=1,
-        callbacks=[checkpoint_callback]
+        callbacks=[val_checkpoint, train_checkpoint]
     )
 
     latest_ckpt = get_latest_checkpoint(Config.CHECKPOINT_DIR)
