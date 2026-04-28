@@ -58,9 +58,14 @@ def test_denoising(checkpoint_path, audio_path, output_path='cleaned_audio.wav')
             # Apply Mask (Dot Product)
             reconstructed_mag[:, i:i+actual_chunk_w] = mag_ori_padded[:, i:i+actual_chunk_w] * valid_mask
             
-    reconstructed_mag = reconstructed_mag[:h, :]
+    # Pad back to original frequency bins if it was cropped
+    if reconstructed_mag.shape[0] < h:
+        pad_size = h - reconstructed_mag.shape[0]
+        reconstructed_mag = np.pad(reconstructed_mag, ((0, pad_size), (0, 0)), mode='constant')
+    else:
+        reconstructed_mag = reconstructed_mag[:h, :]
+        
     phase_original = phase[:h, :]
-    
     # ISTFT to reconstruct waveform
     complex_spec = reconstructed_mag * np.exp(1j * phase_original)
     clean_audio = librosa.istft(complex_spec, hop_length=Config.HOP_LENGTH, win_length=Config.WIN_LENGTH)

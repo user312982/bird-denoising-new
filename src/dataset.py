@@ -3,6 +3,7 @@ import glob
 import librosa
 import numpy as np
 import torch
+import torchaudio
 from torch.utils.data import Dataset, DataLoader
 
 class BirdAudioDataset(Dataset):
@@ -37,14 +38,29 @@ class BirdAudioDataset(Dataset):
             
         return spec
 
+    def _robust_load(self, path):
+        try:
+            waveform, sr = torchaudio.load(path)
+            if waveform.shape[0] > 1:
+                waveform = torch.mean(waveform, dim=0, keepdim=True)
+            if sr != self.config.SR:
+                waveform = torchaudio.functional.resample(waveform, sr, self.config.SR)
+            return waveform.squeeze(0).numpy()
+        except Exception as e:
+            return None
+
     def __getitem__(self, idx):
         noisy_path = self.noisy_files[idx]
         clean_path = self.clean_files[idx]
         
-        # Load audio
-        noisy_audio, _ = librosa.load(noisy_path, sr=self.config.SR)
-        clean_audio, _ = librosa.load(clean_path, sr=self.config.SR)
+        # Load audio safely
+        noisy_audio = self._robust_load(noisy_path)
+        clean_audio = self._robust_load(clean_path)
         
+        if noisy_audio is None or clean_audio is None:
+            return torch.zeros(1, self.config.IMAGE_SIZE, self.config.IMAGE_SIZE), torch.zeros(1, self.config.IMAGE_SIZE, self.config.IMAGE_SIZE)
+            
+
         # STFT
         noisy_stft = librosa.stft(noisy_audio, n_fft=self.config.N_FFT, 
                                   hop_length=self.config.HOP_LENGTH, win_length=self.config.WIN_LENGTH)
