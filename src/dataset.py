@@ -78,4 +78,4 @@ class BirdAudioDataset(Dataset):
 
 def get_dataloader(noisy_dir, clean_dir, config, shuffle=True):
     dataset = BirdAudioDataset(noisy_dir, clean_dir, config)
-    return DataLoader(dataset, batch_size=config.BATCH_SIZE, shuffle=shuffle, num_workers=2)
+    return DataLoader(dataset, batch_size=config.BATCH_SIZE, shuffle=shuffle, num_workers=0)

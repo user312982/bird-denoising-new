@@ -78,11 +78,13 @@ class ViTVS_Encoder(nn.Module):
         return self.transformer(x)
 
 class ViTVS_Decoder(nn.Module):
-    def __init__(self, image_size, patch_size, dim, channels=1):
+    def __init__(self, image_size, patch_size, dim, depth, heads, mlp_dim, channels=1):
         super().__init__()
         self.image_size = image_size
         self.patch_size = patch_size
         patch_dim = channels * patch_size ** 2
+
+        self.transformer = Transformer(dim, depth, heads, dim_head=dim//heads, mlp_dim=mlp_dim)
 
         self.decoder_projection = nn.Sequential(
             nn.Linear(dim, patch_dim),
@@ -91,6 +93,7 @@ class ViTVS_Decoder(nn.Module):
         self.to_pixels = nn.Linear(patch_dim, patch_size * patch_size)
 
     def forward(self, x):
+        x = self.transformer(x)
         x = self.decoder_projection(x)
         x = self.to_pixels(x)
         # Unfold 1D back to 2D Image
@@ -105,7 +108,10 @@ class ViTVS(nn.Module):
             image_size=config.IMAGE_SIZE, patch_size=config.PATCH_SIZE, 
             dim=config.DIM, depth=config.DEPTH, heads=config.HEADS, mlp_dim=config.MLP_DIM
         )
-        self.decoder = ViTVS_Decoder(image_size=config.IMAGE_SIZE, patch_size=config.PATCH_SIZE, dim=config.DIM)
+        self.decoder = ViTVS_Decoder(
+            image_size=config.IMAGE_SIZE, patch_size=config.PATCH_SIZE, 
+            dim=config.DIM, depth=config.DEPTH, heads=config.HEADS, mlp_dim=config.MLP_DIM
+        )
 
     def forward(self, img):
         encoded = self.encoder(img)
