@@ -58,7 +58,7 @@ class BirdAudioDataset(Dataset):
         clean_audio = self._robust_load(clean_path)
         
         if noisy_audio is None or clean_audio is None:
-            return torch.zeros(1, self.config.IMAGE_SIZE, self.config.IMAGE_SIZE), torch.zeros(1, self.config.IMAGE_SIZE, self.config.IMAGE_SIZE)
+            return torch.zeros(3, self.config.IMAGE_SIZE, self.config.IMAGE_SIZE), torch.zeros(1, self.config.IMAGE_SIZE, self.config.IMAGE_SIZE)
             
 
         # STFT
@@ -89,6 +89,9 @@ class BirdAudioDataset(Dataset):
         # Add channel dimension
         x = torch.from_numpy(noisy_mag_norm).unsqueeze(0).float()
         y = torch.from_numpy(mask).unsqueeze(0).float()
+        
+        # Duplikasi ke 3 channel: (1,256,256) -> (3,256,256) sesuai paper 256x256x3
+        x = x.repeat(3, 1, 1)
         
         return x, y
 

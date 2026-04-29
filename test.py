@@ -49,10 +49,12 @@ def test_denoising(checkpoint_path, audio_path, output_path='cleaned_audio.wav')
             if actual_chunk_w < target_size:
                 chunk = np.pad(chunk, ((0, 0), (0, target_size - actual_chunk_w)), mode='constant')
                 
-            x_tensor = torch.from_numpy(chunk).unsqueeze(0).unsqueeze(0).float().to(device)
+            x_tensor = torch.from_numpy(chunk).unsqueeze(0).float()  # (1, H, W)
+            x_tensor = x_tensor.repeat(1, 3, 1, 1).to(device)         # (1, 3, H, W) sesuai IN_CHANNELS=3
             
-            # Forward pass to get Binary Mask
-            predicted_mask = model(x_tensor).squeeze().cpu().numpy()
+            # Forward pass + sigmoid manual (model sekarang return raw logits)
+            logits = model(x_tensor)
+            predicted_mask = torch.sigmoid(logits).squeeze().cpu().numpy()
             valid_mask = predicted_mask[:, :actual_chunk_w]
             
             # Apply Mask (Dot Product)

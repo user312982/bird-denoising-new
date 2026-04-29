@@ -65,6 +65,7 @@ class ViTVS_Encoder(nn.Module):
         patch_dim = channels * patch_size ** 2
 
         self.to_patch_embedding = nn.Sequential(
+            nn.BatchNorm2d(channels),  # BN sebelum ITP: X = Linear(ITP(BN(I)))
             Rearrange('b c (h p1) (w p2) -> b (h w) (p1 p2 c)', p1=patch_size, p2=patch_size),
             nn.Linear(patch_dim, dim),
         )
@@ -106,15 +107,17 @@ class ViTVS(nn.Module):
         super().__init__()
         self.encoder = ViTVS_Encoder(
             image_size=config.IMAGE_SIZE, patch_size=config.PATCH_SIZE, 
-            dim=config.DIM, depth=config.DEPTH, heads=config.HEADS, mlp_dim=config.MLP_DIM
+            dim=config.DIM, depth=config.DEPTH, heads=config.HEADS, mlp_dim=config.MLP_DIM,
+            channels=config.IN_CHANNELS
         )
         self.decoder = ViTVS_Decoder(
             image_size=config.IMAGE_SIZE, patch_size=config.PATCH_SIZE, 
-            dim=config.DIM, depth=config.DEPTH, heads=config.HEADS, mlp_dim=config.MLP_DIM
+            dim=config.DIM, depth=config.DEPTH, heads=config.HEADS, mlp_dim=config.MLP_DIM,
+            channels=config.IN_CHANNELS
         )
 
     def forward(self, img):
         encoded = self.encoder(img)
         decoded = self.decoder(encoded)
-        # Sigmoid for binary mask probabilities [0, 1]
-        return torch.sigmoid(decoded)
+        # Raw logits - sigmoid dipindahkan ke BCEWithLogitsLoss untuk stabilitas numerik
+        return decoded

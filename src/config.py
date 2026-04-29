@@ -2,9 +2,10 @@ import os
 
 class Config:
     # Training Parameters
-    EPOCHS = 50
-    BATCH_SIZE = 4
-    LR = 1e-4
+    EPOCHS = 100
+    BATCH_SIZE = 8
+    LR = 5e-5
+    WEIGHT_DECAY = 5e-4
     
     # Audio parameters
     SR = 16000
@@ -19,6 +20,7 @@ class Config:
     DEPTH = 12        # 12 Layers of ViT Blocks
     HEADS = 8
     MLP_DIM = 2048
+    IN_CHANNELS = 3   # 3-channel input (256x256x3) sesuai paper
     
     # Default Paths (Can be overridden via CLI)
     BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))

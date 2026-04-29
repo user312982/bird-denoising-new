@@ -12,7 +12,7 @@ class ViTVSLightningModule(pl.LightningModule):
         )
         self.config = config
         self.model = ViTVS(config)
-        self.criterion = nn.BCELoss() # Binary Cross Entropy for mask prediction
+        self.criterion = nn.BCEWithLogitsLoss() # BCEWithLogitsLoss: handle raw logits, numerically stable
 
     def forward(self, x):
         return self.model(x)
@@ -32,5 +32,5 @@ class ViTVSLightningModule(pl.LightningModule):
         return loss
 
     def configure_optimizers(self):
-        optimizer = torch.optim.Adam(self.parameters(), lr=self.config.LR)
+        optimizer = torch.optim.AdamW(self.parameters(), lr=self.config.LR, weight_decay=self.config.WEIGHT_DECAY)
         return optimizer
