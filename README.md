@@ -100,7 +100,7 @@ data/
 Start the training process. The script will automatically save the best models to the `checkpoints/` directory. PyTorch Lightning supports seamless resuming; if interrupted, simply re-run the command.
 
 ```bash
-python train.py --epochs 100 --batch_size 8 --lr 0.0002
+python train.py --epochs 50 --batch_size 4 --lr 0.0002
 ```
 
 To monitor training curves (Loss) in real-time:
@@ -138,9 +138,9 @@ python test.py \
 
 | Metric | Score | Description |
 | :--- | :--- | :--- |
-| **F1 Score / Dice** | `88.30%` | Harmonic mean of precision and recall for mask prediction. |
-| **IoU (Jaccard Index)** | `80.90%` | Area of Overlap / Area of Union between predicted and Ideal Binary Mask. |
-| **SDR** | `11.04 dB` | Signal-to-Distortion Ratio (Higher is better clarity). |
+| **F1 Score / Dice** | `49.70%` | Harmonic mean of precision and recall for mask prediction. |
+| **IoU (Jaccard Index)** | `35.82%` | Area of Overlap / Area of Union between predicted and Ideal Binary Mask. |
+| **SDR** | `6.45 dB` | Signal-to-Distortion Ratio (Higher is better clarity). |
 
 ---
 
