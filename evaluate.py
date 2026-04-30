@@ -73,12 +73,10 @@ def evaluate_model(checkpoint_path, test_noisy_dir, test_clean_dir):
             if h < target_size:
                 noisy_mag_norm = np.pad(noisy_mag_norm, ((0, target_size - h), (0, 0)), mode='constant')
                 noisy_mag = np.pad(noisy_mag, ((0, target_size - h), (0, 0)), mode='constant')
-                noisy_phase = np.pad(noisy_phase, ((0, target_size - h), (0, 0)), mode='constant')
                 true_mask_padded = np.pad(true_mask, ((0, target_size - h), (0, 0)), mode='constant')
             else:
                 noisy_mag_norm = noisy_mag_norm[:target_size, :]
                 noisy_mag = noisy_mag[:target_size, :]
-                noisy_phase = noisy_phase[:target_size, :]
                 true_mask_padded = true_mask[:target_size, :]
 
             reconstructed_mag = np.zeros_like(noisy_mag)
